@@ -20,7 +20,7 @@ module Kookaburra
         when Symbol
           alias_method :component_path, path
         else
-          define_method(:component_path) { path }
+          define_method(:component_path) { |*args| path }
         end
       end
 
