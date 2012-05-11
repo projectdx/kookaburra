@@ -57,6 +57,24 @@ describe Kookaburra::UIDriver::UIComponent do
     end
   end
 
+  describe "#select" do
+    it "scopes #browser.select within the component_locator instead of using Kernel#select" do
+      browser = mock('Browser Driver')
+      browser.should_receive(:select) \
+        .with(:arguments) \
+        .and_return(:answer_from_browser)
+      browser.should_receive(:within) do |scope, &block|
+        scope.should == '#my_component'
+        block.call(browser)
+      end
+      configuration.stub!(:browser => browser)  
+      component.stub!(:component_locator => '#my_component')
+      component.instance_eval {
+        select(:arguments).should == :answer_from_browser
+      }
+    end
+  end
+
   describe '#visible?' do
     it 'returns true if the component_locator is found in the DOM and is visible' do
       browser = mock('Browser Driver')

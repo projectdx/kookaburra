@@ -96,6 +96,13 @@ class Kookaburra
         end
       end
 
+      # Since Kernel#select is defined, we have to override it specifically here.
+      def select(*args, &block)
+        browser.within(component_locator) do
+          browser.select(*args, &block)
+        end
+      end
+
       # @private
       # (Not really private, but YARD seemingly lacks RDoc's :nodoc tag, and the
       # semantics here don't differ from Object#respond_to?)
