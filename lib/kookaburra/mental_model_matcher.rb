@@ -1,5 +1,5 @@
 require 'kookaburra/mental_model'
-require 'capybara/util/timeout'
+require 'timeout'
 
 class Kookaburra
   class MentalModel
@@ -137,12 +137,13 @@ class Kookaburra
           proc { actual }
         end
         if @wait_for > 0
-          Capybara.timeout(@wait_for) do
-            begin
-              check_expectations
-            rescue Capybara::TimeoutError
-              false
+          begin
+            Timeout.timeout(@wait_for) do
+              sleep(0.1) until value = check_expectations
+              value
             end
+          rescue TimeoutError
+            false
           end
         else
           check_expectations
@@ -227,6 +228,13 @@ class Kookaburra
       def validate_block_arguments(method, &block)
         raise "Must supply a block to ##{method}" unless block_given?
         raise "Block supplied to ##{method} must take one argument (the value)" unless block.arity == 1
+      end
+
+      def wait_until
+        Timeout.timeout(Capybara.default_wait_time) do
+          sleep(0.1) until value = yield
+          value
+        end
       end
     end
   end
